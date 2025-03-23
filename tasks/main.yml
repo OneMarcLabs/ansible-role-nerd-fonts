@@ -1,6 +1,7 @@
 ---
 # tasks file for nerd-fonts
 - name: Ensure fonts directory is created
+  become: true
   file:
     path: "{{ fonts_folder }}"
     state: directory
@@ -32,3 +33,7 @@
     remote_src: true
 
 # /usr/local/share/fonts and reboot (or manually rebuild the font cache with fc-cache -f -v
+- name: Rebuild font cache
+  ansible.builtin.command: fc-cache -fv
+  become: true
+  changed_when: false
