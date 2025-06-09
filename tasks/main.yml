@@ -6,6 +6,13 @@
   file:
     path: "{{ fonts_folder }}"
     state: directory
+    mode: "0755"
+
+- name: Ensure temporary download folder exists
+  file:
+    path: /tmp/nerd-fonts
+    state: directory
+    mode: "0755"
 
 - name: Check if Hack Nerd Font exists
   become: true
@@ -13,13 +20,20 @@
     path: "{{ fonts_folder }}/HackNerdFont-Regular.ttf"
   register: hack_font
 
-- name: Download and extract Hack Nerd Font
+- name: Download Hack Nerd Font archive
+  when: not hack_font.stat.exists
+  get_url:
+    url: "https://github.com/ryanoasis/nerd-fonts/releases/download/v{{ fonts_version }}/Hack.tar.xz"
+    dest: "/tmp/nerd-fonts/Hack.tar.xz"
+    mode: "0644"
+
+- name: Extract Hack Nerd Font archive
   when: not hack_font.stat.exists
   become: true
-  ansible.builtin.unarchive:
-    src: "https://github.com/ryanoasis/nerd-fonts/releases/download/v{{ fonts_version }}/Hack.tar.xz"
+  unarchive:
+    src: "/tmp/nerd-fonts/Hack.tar.xz"
     dest: "{{ fonts_folder }}"
-    remote_src: true
+    remote_src: no
 
 - name: Check if FiraCode Nerd Font exists
   become: true
@@ -27,15 +41,22 @@
     path: "{{ fonts_folder }}/FiraCodeNerdFont-Regular.ttf"
   register: fira_font
 
-- name: Download and extract FiraCode Nerd Font
+- name: Download FiraCode Nerd Font archive
+  when: not fira_font.stat.exists
+  get_url:
+    url: "https://github.com/ryanoasis/nerd-fonts/releases/download/v{{ fonts_version }}/FiraCode.tar.xz"
+    dest: "/tmp/nerd-fonts/FiraCode.tar.xz"
+    mode: "0644"
+
+- name: Extract FiraCode Nerd Font archive
   when: not fira_font.stat.exists
   become: true
-  ansible.builtin.unarchive:
-    src: "https://github.com/ryanoasis/nerd-fonts/releases/download/v{{ fonts_version }}/FiraCode.tar.xz"
+  unarchive:
+    src: "/tmp/nerd-fonts/FiraCode.tar.xz"
     dest: "{{ fonts_folder }}"
-    remote_src: true
+    remote_src: no
 
 - name: Rebuild font cache
   become: true
-  ansible.builtin.command: fc-cache -fv
+  command: fc-cache -fv
   changed_when: false
