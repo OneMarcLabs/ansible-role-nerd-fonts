@@ -1,10 +1,12 @@
 ---
-# vars file for nerd-fonts
+# Nerd Fonts release to install (see https://github.com/ryanoasis/nerd-fonts/releases)
 fonts_version: 3.2.1
+
+# Font cache rebuild command
 fonts_rebuild_cache: fc-cache -fv
 
-# Ubuntu
-#fonts_folder: /usr/local/share/fonts
-
-# RedHat
-fonts_folder: /usr/share/fonts
+# System-wide fonts folder, auto-picked by OS family.
+# Override via extra-vars/host_vars when targeting a non-standard path.
+#   Debian/Ubuntu: /usr/local/share/fonts
+#   RedHat/Fedora: /usr/share/fonts
+fonts_folder: "{{ '/usr/local/share/fonts' if ansible_facts['os_family'] == 'Debian' else '/usr/share/fonts' }}"

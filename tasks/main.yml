@@ -1,62 +1,69 @@
 ---
-# tasks file for nerd-fonts
-
 - name: Ensure fonts directory is created
   become: true
-  file:
+  ansible.builtin.file:
     path: "{{ fonts_folder }}"
     state: directory
     mode: "0755"
+  tags: [fonts, nerd-fonts]
 
 - name: Ensure temporary download folder exists
-  file:
+  ansible.builtin.file:
     path: /tmp/nerd-fonts
     state: directory
     mode: "0755"
+  tags: [fonts, nerd-fonts]
 
 - name: Check if Hack Nerd Font exists
   become: true
-  stat:
+  ansible.builtin.stat:
     path: "{{ fonts_folder }}/HackNerdFont-Regular.ttf"
-  register: hack_font
+  register: _nerd_fonts_hack
+  tags: [fonts, nerd-fonts]
 
 - name: Download Hack Nerd Font archive
-  when: not hack_font.stat.exists
-  get_url:
+  ansible.builtin.get_url:
     url: "https://github.com/ryanoasis/nerd-fonts/releases/download/v{{ fonts_version }}/Hack.tar.xz"
     dest: "/tmp/nerd-fonts/Hack.tar.xz"
     mode: "0644"
+  when: not _nerd_fonts_hack.stat.exists
+  tags: [fonts, nerd-fonts]
 
 - name: Extract Hack Nerd Font archive
-  when: not hack_font.stat.exists
   become: true
-  unarchive:
+  ansible.builtin.unarchive:
     src: "/tmp/nerd-fonts/Hack.tar.xz"
     dest: "{{ fonts_folder }}"
-    remote_src: no
+    remote_src: false
+  when: not _nerd_fonts_hack.stat.exists
+  tags: [fonts, nerd-fonts]
 
 - name: Check if FiraCode Nerd Font exists
   become: true
-  stat:
+  ansible.builtin.stat:
     path: "{{ fonts_folder }}/FiraCodeNerdFont-Regular.ttf"
-  register: fira_font
+  register: _nerd_fonts_fira
+  tags: [fonts, nerd-fonts]
 
 - name: Download FiraCode Nerd Font archive
-  when: not fira_font.stat.exists
-  get_url:
+  ansible.builtin.get_url:
     url: "https://github.com/ryanoasis/nerd-fonts/releases/download/v{{ fonts_version }}/FiraCode.tar.xz"
     dest: "/tmp/nerd-fonts/FiraCode.tar.xz"
     mode: "0644"
+  when: not _nerd_fonts_fira.stat.exists
+  tags: [fonts, nerd-fonts]
 
 - name: Extract FiraCode Nerd Font archive
-  when: not fira_font.stat.exists
   become: true
-  unarchive:
+  ansible.builtin.unarchive:
     src: "/tmp/nerd-fonts/FiraCode.tar.xz"
     dest: "{{ fonts_folder }}"
-    remote_src: no
+    remote_src: false
+  when: not _nerd_fonts_fira.stat.exists
+  tags: [fonts, nerd-fonts]
 
 - name: Rebuild font cache
   become: true
-  command: fc-cache -fv
+  ansible.builtin.command: fc-cache -fv
   changed_when: false
+  tags: [fonts, nerd-fonts]
